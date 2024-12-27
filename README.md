@@ -49,7 +49,7 @@ cd guess_game_k8s
 Para subir a aplicação, use o comando abaixo:
 
 ```bash
-kubectl apply -f guess_game_k8s/ -R
+kubectl apply -f .
 ```
 
 Verifique se todos os pods estão com o status `Running`:
@@ -175,7 +175,7 @@ k8s/
 Qualquer alteração no código pode ser aplicada executando os comandos abaixo:
 
 ```bash
-kubectl apply -f guess_game_k8s/ -R
+kubectl apply -f .
 ```
 
 ---
@@ -185,5 +185,5 @@ kubectl apply -f guess_game_k8s/ -R
 Para deletar todos os recursos criados:
 
 ```bash
-kubectl delete -f guess_game_k8s/ -R
+kubectl delete -f .
 ```
