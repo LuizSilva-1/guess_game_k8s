@@ -35,7 +35,7 @@ O jogador deve adivinhar uma senha gerada aleatoriamente, e o sistema fornece fe
 ### **1. Clonar o Repositório**
 
 ```bash
-git clone https://github.com/luizfersilva/guess_game_k8s.git
+git clone git@github.com:LuizSilva-1/guess_game_k8s.git
 ```
 
 Navegue até a pasta do projeto:
