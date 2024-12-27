@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+  namespace: default
+data:
+  # Configurações do Backend
+  FLASK_APP: "run.py"  # Nome da aplicação Flask
+  FLASK_DB_HOST: "postgres"  # Nome do serviço do PostgreSQL
+  FLASK_DB_NAME: "guess_game"  # Nome do banco de dados
+  FLASK_DB_PORT: "5432"  # Porta do PostgreSQL
+  FLASK_DB_TYPE: "postgres"  # Tipo de banco de dados
+
+  # Configuração do Frontend
+  REACT_APP_BACKEND_URL: "http://backend.default.svc.cluster.local:5000"  # Alterado para o DNS completo do backend
+
+  # Configuração do Nginx
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        # Configuração do Nginx
+        include /etc/nginx/mime.types;
+        sendfile on;
+        
+        upstream backend {
+            ip_hash;
+            server backend.default.svc.cluster.local:5000;  # Alterado para usar o DNS completo do backend
+        }
+
+        server {
+            listen 80;
+
+            location / {
+                root /usr/share/nginx/html;
+                index index.html index.htm;
+                try_files $uri $uri/ /index.html;
+            }
+
+            location /api/ {
+                proxy_pass http://backend.default.svc.cluster.local:5000/;  # Usando DNS do backend
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }

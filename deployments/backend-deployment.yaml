@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: luizfersilva/backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_APP
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FLASK_APP
+            - name: FLASK_DB_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FLASK_DB_TYPE
+            - name: FLASK_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FLASK_DB_NAME
+            - name: FLASK_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FLASK_DB_HOST
+            - name: FLASK_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: FLASK_DB_PORT
+            - name: FLASK_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: FLASK_DB_USER
+            - name: FLASK_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: FLASK_DB_PASSWORD
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - mountPath: /app/config
+              name: app-config-volume
+      volumes:
+        - name: app-config-volume
+          configMap:
+            name: app-config
